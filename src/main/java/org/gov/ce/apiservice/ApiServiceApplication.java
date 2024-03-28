@@ -7,7 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ApiServiceApplication {
 
 	public static void main(String[] args) {
-		System.out.println("Server Running on Port ");
 		SpringApplication.run(ApiServiceApplication.class, args);
 	}
 

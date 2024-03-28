@@ -1,34 +1,44 @@
 package org.gov.ce.apiservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.Date;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@Entity(name = "PERSON")
+@Entity(name = "TB_PERSON")
 public class PersonEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private Long id;
 
-    @Column(name = "NAME", length = 25)
+    @Column(name = "NAME", length = 30, nullable = false)
     private String name;
 
-    @Column(name = "LAST_NAME", length = 25)
+    @Column(name = "LAST_NAME", length = 30, nullable = false)
     private String lastName;
 
-    @Column(name = "CPF", length = 25)
+    @Column(name = "CPF", length = 25, nullable = false, unique = true)
     private String cpf;
 
-    @Column(name = "FK_STATUS", length = 25)
-    private String status;
+    @ManyToOne
+    @JoinColumn(name = "FK_STATUS", nullable = false)
+    private StatusEntity status;
 
-    @Column(name = "DATE_REGISTER", length = 25)
-    private String dateRegister;
+    @Column(name = "DATE_REGISTER", length = 40, nullable = false)
+    private Date dateRegister;
+
+    @Override
+    public String toString() {
+        return "{" +
+                ", name='" + name + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", status='" + status + '\'' +
+                "}";
+    }
 }
