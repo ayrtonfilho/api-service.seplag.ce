@@ -12,6 +12,9 @@ A API Spring Boot segue o padrão de arquitetura MVC (Model-View-Controller), qu
 
 O design MVC ajuda a separar as preocupações e a manter o código organizado e modular. Isso facilita a manutenção e a evolução da aplicação ao longo do tempo.
 
+## Modelagem
+![image](https://github.com/ayrtonfilho/api-service.seplag.ce/assets/71043862/e29baa6b-9364-4189-938c-fcef4b0f54f6)
+
 ## Configurações
 
 Para garantir o funcionamento correto da aplicação, certifique-se de configurar corretamente os seguintes arquivos de propriedades:
