@@ -37,22 +37,3 @@ hibernate.show_sql=true
 cors.key_private=f31a841c3e5b14d57f45cdc0ae740ce454952a500c64ad11103af1cb9e7d972e35017645002bc2e4066a243bcd3238f5cafd7e3728afc44bda436c4c0ddba7e2
 ```
 Certifique-se de substituir ```/caminho/para/o/seu/banco/de/dados/ pelo caminho``` real para o banco de dados SQLite.
-
-### Executando com o Docker
-Você pode executar a aplicação Spring Boot dentro de um contêiner Docker usando o Docker Compose. Certifique-se de ter o Docker e o Docker Compose instalados em sua máquina.
-
-Passo 1: Dockerfile
-Crie um arquivo Dockerfile na raiz do seu projeto com o seguinte conteúdo:
-
-### Dockerfile
-
-```
-Copy code
-FROM openjdk:11-jdk-slim
-WORKDIR /app
-COPY target/sua-aplicacao.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]
-```
-
-Certifique-se de substituir as informações do banco de dados, como o caminho do arquivo SQLite pelas informações reais do projeto.
