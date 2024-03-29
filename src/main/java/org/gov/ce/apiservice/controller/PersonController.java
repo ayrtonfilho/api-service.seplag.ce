@@ -2,23 +2,23 @@ package org.gov.ce.apiservice.controller;
 
 import jakarta.validation.Valid;
 import org.gov.ce.apiservice.dto.PersonDTO;
+import org.gov.ce.apiservice.dto.PersonUpdateDTO;
 import org.gov.ce.apiservice.entity.ErrorPatternEntity;
-import org.gov.ce.apiservice.entity.MessagePatternEntity;
 import org.gov.ce.apiservice.entity.PersonEntity;
-import org.gov.ce.apiservice.exception.ApplicationException;
 import org.gov.ce.apiservice.exception.DuplicatedDataException;
 import org.gov.ce.apiservice.exception.NotFoundException;
 import org.gov.ce.apiservice.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -45,6 +45,25 @@ public class PersonController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity findAllPersons() {
+        try {
+            Optional<List<PersonEntity>> persons = personService.findAllPersons();
+
+            if (persons.isEmpty()) {
+                return ResponseEntity
+                        .internalServerError()
+                        .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Don't exists persons in database!", null));
+            }
+
+            return ResponseEntity.status(HttpStatus.OK).body(persons);
+        } catch (Exception error) {
+            error.printStackTrace();
+            return ResponseEntity
+                    .internalServerError()
+                    .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching all persons", error.getMessage()));
+        }
+    }
     @GetMapping("/status/{status_id}")
     public ResponseEntity findOnePersonByStatusId(@PathVariable("status_id") Long statusId) {
         try {
@@ -80,23 +99,35 @@ public class PersonController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity findAllPersons() {
+    @PutMapping(path = "/update/{person_id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity savePerson(@PathVariable("person_id") Long personId, @RequestBody @Valid PersonUpdateDTO person) {
         try {
-            Optional<List<PersonEntity>> persons = personService.findAllPersons();
+            PersonEntity savedPerson = personService.updatePerson(personId, person);
 
-            if (persons.isEmpty()) {
-                return ResponseEntity
-                        .internalServerError()
-                        .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Don't exists persons in database!", null));
-            }
-
-            return ResponseEntity.status(HttpStatus.OK).body(persons);
+            return ResponseEntity.status(HttpStatus.OK).body(savedPerson);
+        } catch (NotFoundException error) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorPatternEntity(HttpStatus.NOT_FOUND, "Person don't exists in database!", error.getMessage()));
         } catch (Exception error) {
-            error.printStackTrace();
             return ResponseEntity
                     .internalServerError()
-                    .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while searching all persons", error.getMessage()));
+                    .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", error.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/remove/{person_id}")
+    public ResponseEntity findOneAndRemove(@PathVariable("person_id") Long id) {
+        try {
+            return ResponseEntity.ok().body(Map.of("deleted", personService.findOneAndRemove(id), "message", "Person deleted successfully!"));
+        } catch (NotFoundException error) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorPatternEntity(HttpStatus.NOT_FOUND, error.getMessage(), null));
+        } catch (Exception error) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(new ErrorPatternEntity(HttpStatus.INTERNAL_SERVER_ERROR, error.getLocalizedMessage(), error.getMessage()));
         }
     }
 

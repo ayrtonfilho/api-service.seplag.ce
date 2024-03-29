@@ -1,6 +1,7 @@
 package org.gov.ce.apiservice.service;
 
 import org.gov.ce.apiservice.dto.PersonDTO;
+import org.gov.ce.apiservice.dto.PersonUpdateDTO;
 import org.gov.ce.apiservice.entity.PersonEntity;
 import org.gov.ce.apiservice.entity.StatusEntity;
 import org.gov.ce.apiservice.exception.DuplicatedDataException;
@@ -26,6 +27,13 @@ public class PersonService {
     @Autowired
     private StatusRepository statusRepository;
 
+    public Optional<List<PersonEntity>> findAllPersons() throws Exception {
+        try {
+            return Optional.of(personRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Error occurred while retrieving all persons: " + e.getMessage());
+        }
+    }
     public Optional<PersonEntity> findOnePersonById(Long id) throws Exception {
         try {
             Optional<PersonEntity> person = personRepository.findById(id);
@@ -40,6 +48,11 @@ public class PersonService {
         } catch (Exception error) {
             throw new InternalServerErrorException("Internal Server Error: " + error.getMessage());
         }
+    }
+
+    public Optional<PersonEntity> findOnePersonByNameOrCpf(String name, String cpf) {
+        Optional<PersonEntity> byName = this.findOnePersonByName(name);
+        return byName.isPresent() ? byName : this.findOnePersonByCpf(cpf);
     }
 
     public List<PersonEntity> findAllPersonsByStatusId(Long statusId) throws Exception {
@@ -89,16 +102,46 @@ public class PersonService {
         return personEntity;
     }
 
-    public Optional<PersonEntity> findOnePersonByNameOrCpf(String name, String cpf) {
-        Optional<PersonEntity> byName = this.findOnePersonByName(name);
-        return byName.isPresent() ? byName : this.findOnePersonByCpf(cpf);
+    public PersonEntity updatePerson(Long id, PersonUpdateDTO personUpdateDTO) throws Exception {
+        Optional<PersonEntity> existingPerson = findOnePersonById(id);
+
+        if (existingPerson.isEmpty()) {
+            throw new NotFoundException("Person with ID " + id + " doesn't exists!");
+        }
+
+        Long statusId = personUpdateDTO.getStatus();
+
+        StatusEntity statusEntity = statusRepository.findById(statusId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid status ID: " + statusId));
+
+        personRepository.updatePersonById(
+                personUpdateDTO.getName(),
+                personUpdateDTO.getLastName(),
+                statusEntity.getId(),
+                id
+        );
+
+        PersonEntity newPerson = new PersonEntity();
+
+        newPerson.setName(personUpdateDTO.getName());
+        newPerson.setLastName(personUpdateDTO.getLastName());
+        newPerson.setCpf(existingPerson.get().getCpf());
+        newPerson.setId(id);
+        newPerson.setStatus(statusEntity);
+        newPerson.setDateRegister(existingPerson.get().getDateRegister());
+
+        return newPerson;
     }
 
-    public Optional<List<PersonEntity>> findAllPersons() throws Exception {
-        try {
-            return Optional.of(personRepository.findAll(Sort.by(Sort.Direction.ASC, "name")));
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Error occurred while retrieving all persons: " + e.getMessage());
+    public PersonEntity findOneAndRemove(Long id) throws Exception {
+        Optional<PersonEntity> existingPerson = findOnePersonById(id);
+
+        if (existingPerson.isEmpty()) {
+            throw new NotFoundException("Person with ID " + id + " doesn't exists!");
         }
+
+        personRepository.deleteById(id);
+
+        return existingPerson.get();
     }
 }

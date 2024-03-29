@@ -18,10 +18,10 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("/**")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .exposedHeaders("Authorization")
+                .exposedHeaders("Key-HeaderAPI-SEPLAG-CE")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
@@ -32,19 +32,22 @@ public class CorsConfig implements WebMvcConfigurer {
             @Override
             public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
                 String keyHeader = request.getHeader("Key-HeaderAPI-SEPLAG-CE");
-                String serverLocal = request.getLocalName();
+                String serverOrigin = request.getHeader("Origin");
                 String method = request.getMethod();
                 String requestURI = request.getRequestURI();
                 String serverName = request.getLocalName();
                 String remoteHost = request.getRemoteHost();
 
-                if (keyHeader != null && keyHeader.equals(key_private) && serverLocal.equals("localhost")) {
-                    System.out.println(String.format("REQUEST AUTHORIZED: IP: %s | Method: %s | Request URI: %s | Server Name: %s", remoteHost, method, requestURI, serverName));
+                if (keyHeader != null && keyHeader.equals(key_private)) {
+                    System.out.println(String.format("REQUEST AUTHORIZED: IP: %s | Method: %s | Request URI: %s | Server Name: %s | Local Origin: %s ", remoteHost, method, requestURI, serverName, serverOrigin));
                     return true;
                 } else {
+                    if (method.equals("OPTIONS") && (serverName.contains("ip6") || serverOrigin.contains("5173"))) {
+                        return true;
+                    }
 
                     System.out.println("=".repeat(70));
-                    System.out.println(String.format("#WARN - REQUEST UNAUTHORIZED: IP: %s | Method: %s | Request URI: %s | Server Name: %s", remoteHost, method, requestURI, serverName));
+                    System.out.println(String.format("#WARN - REQUEST UNAUTHORIZED: IP: %s | Method: %s | Request URI: %s | Server Name: %s | Local Origin: %s ", remoteHost, method, requestURI, serverName , serverOrigin));
                     System.out.println("=".repeat(70) + "\n");
 
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
