@@ -1,6 +1,6 @@
-# API Spring Boot - Teste Técnico
+# API Spring Boot
 
-Esta é uma API Spring Boot desenvolvida para o teste técnico da SEPLAGCE. A API fornece recursos para realizar consultas diversas e personalizadas de modo seguro para operações CRUD na tabela pessoa.
+Esta é uma API Spring Boot. A API fornece recursos para realizar consultas diversas e personalizadas de modo seguro para operações CRUD na tabela pessoa.
 
 ## Design MVC (Model-View-Controller)
 
