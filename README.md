@@ -1,4 +1,4 @@
-# API Spring Boot
+# API Spring Boot com SQLite
 
 Esta é uma API Spring Boot. A API fornece recursos para realizar consultas diversas e personalizadas de modo seguro para operações CRUD na tabela pessoa.
 
