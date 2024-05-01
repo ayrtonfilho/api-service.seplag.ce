@@ -25,7 +25,7 @@ Para garantir o funcionamento correto da aplicação, certifique-se de configura
 spring.application.name=api-service.seplag.ce
 
 # Configurações do banco de dados
-spring.datasource.url=jdbc:sqlite:/caminho/para/o/seu/banco/de/dados/seplag.ce.api.db
+spring.datasource.url=jdbc:sqlite:/caminho/para/o/seu/banco/de/dados/course.api.db
 spring.datasource.driver-class-name=org.sqlite.JDBC
 spring.jpa.database-platform=org.hibernate.community.dialect.SQLiteDialect
 spring.jpa.hibernate.ddl-auto=update
